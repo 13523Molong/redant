@@ -1,0 +1,138 @@
+
+/* 通用样式 */
+.container {
+  padding: 40rpx;
+  background-color: #f9f9f9;
+  height: 100vh;
+}
+
+/* 状态栏样式 */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30rpx;
+  margin-bottom: 80rpx;
+}
+.time {
+  font-size: 32rpx;
+  font-family: HarmonyOSSansSC;
+  color: #000;
+}
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+.battery {
+  width: 50rpx;
+}
+
+/* 用户头像区域 */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 80rpx;
+}
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+.username {
+  font-size: 40rpx;
+  margin-top: 20rpx;
+  color: #383838;
+}
+
+/* 登录表单 */
+.login-form {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+}
+.form-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+.input {
+  flex: 1;
+  font-size: 32rpx;
+  margin-left: 30rpx;
+}
+.placeholder {
+  color: #c2c2c2;
+}
+.eye-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-left: 20rpx;
+}
+
+/* 登录按钮 */
+.login-btn {
+  background: linear-gradient(90deg, #2a82e4, #67b7f6);
+  height: 100rpx;
+  border-radius: 50rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 60rpx 0 40rpx;
+}
+.btn-text {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 500;
+}
+
+/* 其他样式 */
+.forgot-pwd {
+  color: #969696;
+  font-size: 28rpx;
+  text-align: right;
+  margin-top: 30rpx;
+}
+.register-section {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  color: #969696;
+}
+.register-text {
+  color: #2a82e4;
+}
+
+/* 其他登录方式 */
+.other-login {
+  margin-top: 100rpx;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+  margin-bottom: 50rpx;
+}
+.line {
+  flex: 1;
+  height: 2rpx;
+  background: #ddd;
+}
+.divider-text {
+  color: #8c9198;
+}
+.login-methods {
+  display: flex;
+  justify-content: center;
+  gap: 80rpx;
+}
+.method-icon {
+  width: 80rpx;
+  height: 80rpx;
+}

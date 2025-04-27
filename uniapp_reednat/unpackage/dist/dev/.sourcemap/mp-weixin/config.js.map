@@ -1,0 +1,1 @@
+{"version":3,"file":"config.js","sources":["config.js"],"sourcesContent":["export default {\n  apiBaseUrl: 'http://172.28.221.16:5003',\n  endpoints: {\n    getUserInfo: '/account/user_info_api_app',\n    setUserInfo: '/account/set_user_info_app',\n  },\n};"],"names":[],"mappings":";AAAA,MAAe,SAAA;AAAA,EACb,YAAY;AAAA,EACZ,WAAW;AAAA,IACT,aAAa;AAAA,IACb,aAAa;AAAA,EACd;AACH;;"}
