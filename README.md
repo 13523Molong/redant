@@ -10,6 +10,7 @@
 - 🌐 跨域请求支持
 
 ## 系统架构
+···
 Flask Application
 ├── API Endpoints
 │ ├── Auth API (JWT)
@@ -21,7 +22,7 @@ Flask Application
 └── Utilities
 ├── Connection Pooling
 └── Result Formatters
-
+···
 
 ## 详细技术说明
 
