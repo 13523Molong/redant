@@ -1,0 +1,129 @@
+{% extends "../common/layouts.html" %}
+{%block title %}账号管理{% end %}
+{% block content %}
+<div class="row  border-bottom">
+    <div class="col-lg-12">
+        <div class="tab_title">
+            <ul class="nav nav-pills">
+                <li class="current">
+                    <a href="/account/index">账户列表</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <form class="form-inline wrap_search">
+            <div class="row m-t p-w-m">
+                <div class="form-group">
+                    <select name="status" class="form-control inline">
+                        <option value="-1">请选择状态</option>
+
+                         <!--循环展示-->
+                        {% for tmp_key in resp_data['status_mapping'] %}
+                            <option value="{{tmp_key}}" {% if tmp_key==resp_data['search_con']['status'] %} selected {% end %}>{{resp_data['status_mapping'][tmp_key]}}</option>
+                        {% end %}
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" name="mix_kw" placeholder="请输入姓名或者手机号码" class="form-control" value="{{resp_data['search_con']['mix_kw']}}">
+                        <input type="hidden" name="p" value="{{resp_data['search_con']['p']}}">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-primary search">
+                                <i class="fa fa-search"></i>搜索
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-12">
+                    <a class="btn btn-w-m btn-outline btn-primary pull-right"
+                       href="/account/set">
+                        <i class="fa fa-plus"></i>账号
+                    </a>
+                </div>
+            </div>
+        </form>
+        <table class="table table-bordered m-t">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>姓名</th>
+                <th>手机</th>
+                <th>邮箱</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if resp_data['list'] %}
+
+             <!--模板循环-->
+                {% for item in resp_data['list'] %}
+            <tr>
+                <td>{{item['uid']}}</td>
+                <td>{{item['nickname']}}</td>
+                <td>{{item['mobile']}}</td>
+                <td>{{item['email']}}</td>
+                <td>
+                    <a href="/account/info?id={{item['uid']}}">
+                        <i class="fa fa-eye fa-lg"></i>
+                    </a>
+                    {% if item['status']==1 %}
+                    <a class="m-l" href="/account/set?id={{item['uid']}}">
+                        <i class="fa fa-edit fa-lg"></i>
+                    </a>
+
+                    <a class="m-l remove" href="javascript:void(0);" data="{{item['uid']}}" >
+                        <i class="fa fa-trash fa-lg"></i>
+                    </a>
+                    {% else %}
+                        <a class="m-l recover" href="javascript:void(0);" data="{{item['uid']}}">
+                            <i class="fa fa-rotate-left fa-lg"></i>
+                        </a>
+                    {% end %}
+                </td>
+            </tr>
+                {% end %}
+            {% else %}
+                <tr><td colspan="5">暂无数据~~~</td></tr>
+            {% end %}
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <span class="pagination_count" style="line-height: 40px;">共{{ resp_data['pages']['total'] }}条记录 | 每页{{resp_data['pages']['page_size']}}条</span>
+                <ul class="pagination pagination-lg   pull-right" style="margin: 0 0 ;">
+                    {% if resp_data['pages']['is_prev'] == 1 %}
+                     <li>
+                         <a href="{{ resp_data['pages']['url'] }}&p=1" ><span>首页</span></a>
+                     </li>
+                    {%  end %}
+
+                    {% for idx in resp_data['pages']['range'] %}
+                        {% if idx == resp_data['pages']['current'] %}
+                            <li class="active"><a href="javascript:void(0);">{{ idx }}</a></li>
+                        {% else %}
+                            <li><a href="{{ resp_data['pages']['url'] }}&p={{idx}}">{{ idx }}</a></li>
+                        {% end %}
+                    {% end %}
+                    {% if resp_data['pages']['is_next'] == 1 %}
+                     <li>
+                            <a href="{{ resp_data['pages']['url'] }}&p={{ resp_data['pages']['total_pages'] }}" ><span>尾页</span></a>
+                     </li>
+                    {% end %}
+                </ul>
+            </div>
+            </div>
+        </div>
+</div>
+{% end %}
+{% block js %}
+<script type="text/javascript" charset="UTF-8" src="{{static_url('JS/account/index.js') }}"></script>
+{% end %}

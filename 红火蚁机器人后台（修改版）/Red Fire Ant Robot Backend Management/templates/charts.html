@@ -1,0 +1,44 @@
+{% extends "./common/layouts.html" %}
+{%block title %}图表化展示{% end %}
+{% block content %}
+<!-- .wrap>(.head>.title+button)+.body>(.item>.device+.chart)*4 -->
+<div class="wrapper wrapper-content">
+<div class="wrap">
+    <div class="head">
+
+    </div>
+        <div class="item">
+            <div class="device">城市天气数据:&nbsp
+                <select name="city" id="city" style="font-size: large">
+                    <option value="深圳">深圳</option>
+                    <option value="上海">上海</option>
+                    <option value="北京">北京</option>
+                    <option value="重庆">重庆</option>
+                    <option value="广州">广州</option>
+
+                </select>
+            </div>
+            <div class="chart" id="1"></div>
+        </div>
+        <div class="item">
+            <div class="device">市场预测</div>
+            <div class="chart" id="2"></div>
+        </div>
+        <div class="item">
+            <div class="device">设备运行详情</div>
+            <div class="chart" id="3"></div>
+        </div>
+        <div class="item">
+            <div class="device">监测结果</div>
+            <div class="chart" id="4"></div>
+        </div>
+</div>
+</div>
+{% end %}
+{% block css %}
+<link href="{{static_url('CSS/charts.css')}}" rel="stylesheet">
+{% end %}
+{% block js %}
+<script src="{{static_url('JS/stat/echarts.min.js')}}"></script>
+<script type="text/javascript" charset="UTF-8" src="{{static_url('JS/chart.js') }}"></script>
+{% end %}

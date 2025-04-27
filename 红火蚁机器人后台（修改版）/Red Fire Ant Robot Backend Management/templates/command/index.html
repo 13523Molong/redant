@@ -1,0 +1,82 @@
+{% extends "../common/layouts.html" %}
+{%block title %}机器人任务列表{% end %}
+{% block content %}
+<div class="row  border-bottom">
+    <div class="col-lg-12">
+        <div class="tab_title">
+            <ul class="nav nav-pills">
+                <li class="current">
+                    <a href="/command/index">已下发的任务</a>
+                </li>
+                 <li>
+                    <a href="/command/finish">已完成的任务</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <form class="form-inline wrap_search">
+            <div class="row">
+                <div class="col-lg-12">
+                    <a class="btn btn-w-m btn-outline btn-primary pull-right"
+                       href="/command/add">
+                        <i class="fa fa-plus"></i>添加任务
+                    </a>
+                </div>
+            </div>
+        </form>
+        <table class="table table-bordered m-t">
+            <thead>
+            <tr>
+                <th>机器人型号</th>
+                <th>执行状态</th>
+                <th>任务区域</th>
+                <th>任务进度</th>
+                <th>任务详情</th>
+                <th>发现蚁巢数量</th>
+                <th>备注</th>
+            </tr>
+            </thead>
+            <tbody style="font-size: 17px;font-weight: 600;">
+            <!-- {% if resp_data['list'] %} -->
+
+             <!--模板循环-->
+                <!-- {% for item in resp_data['list'] %}
+            <tr>
+                <td>{{item['id']}}</td>
+                <td>{{task[item['type']-1]['name']}}</td>
+                <td>{{item['obj_id']}}</td>
+                <td>{{item['radius']}}</td>
+                <td>{{item['height']}}</td>
+                <td>{{item['start_time']}}</td>
+                <td>
+                    <a href="/command/info?id={{item['id']}}">
+                        <i class="fa fa-eye fa-lg"></i>
+                    </a>
+                </td>
+
+            </tr>
+                {% end %}
+            {% else %}
+                <tr><td colspan="6">暂无数据~~~</td></tr>
+            {% end %} -->
+            <tr style="height: 60px;"><td>101</td><td>正在执行任务</td><td>深圳-南山</td><td>已检测20%的区域</td><td>检测蚁巢</td><td>10</td><td>无</td></tr>
+            <tr style="height: 60px;"><td>102</td><td>正在执行任务</td><td>深圳-福田</td><td>已检测20%的区域</td><td>检测蚁巢</td><td>12</td><td>无</td></tr>
+            <tr style="height: 60px;"><td>103</td><td>就绪</td><td>深圳-保安</td><td>已检测0%的区域</td><td>检测蚁巢</td><td>9</td><td>无</td></tr>
+            <tr style="height: 60px;"><td>104</td><td>已执行完</td><td>深圳-坪山</td><td>已检测100%的区域</td><td>检测蚁巢</td><td>0</td><td>无</td></tr>
+            <tr style="height: 60px;"><td>105</td><td>就绪</td><td>深圳-龙华</td><td>已检测0%的区域</td><td>检测蚁巢</td><td>7</td><td>无</td></tr>
+            <tr style="height: 60px;"><td>106</td><td>就绪</td><td>深圳-粤海</td><td>已检测0%的区域</td><td>检测蚁巢</td><td>16</td><td>无</td></tr>
+            </tbody>
+        </table>
+
+        <!--分页代码已被封装到统一模板文件中-->
+
+
+    </div>
+</div>
+{% end %}
+{% block js %}
+<script src="{{static_url('JS/command/index.js')}}"></script>
+{% end %}

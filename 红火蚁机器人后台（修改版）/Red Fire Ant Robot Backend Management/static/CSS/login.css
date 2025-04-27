@@ -1,0 +1,100 @@
+body{
+    background-color: rgb(202, 243, 243);
+    min-height: 100vh;
+    background-repeat: no-repeat;
+    overflow: hidden;
+
+}
+body::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    
+    /* 设置渐变色 */
+    background-image: linear-gradient(to bottom left, rgba(72, 32, 250, 0.945),rgb(160, 228, 245), rgb(232, 125, 125));
+    /* background: linear-gradient(#f00,#f0f);*/
+
+     /* 浏览器不支持时显示 */
+    background-color: rgb(83, 86, 248);
+
+    clip-path: circle(25% at top 10%);
+}
+ /* ::after 和 :after 二者意思是相同的但前者是CSS3的写法，兼容性明显后者比较好，但在H5的开发中最好是前者 */
+    /* 伪类对象需加上content */
+
+/* body::after{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(#fa88f08f,#0228ff7c);
+    clip-path: circle(25% at left 10%);
+    
+} */
+
+.login-box{
+    width: 400px;
+    height: 450px;
+    background-color: rgba(255, 255, 255, 0.5);
+    position: relative;
+    left: 50%;
+    top: 50vh;
+    margin-top: -210px;
+    margin-left: -175px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+}
+.login-box:hover{
+    background-color: rgba(255, 255, 255, 0.3);
+}
+.img{
+    margin: 5px;
+    width: 120px;
+    height: 100px;
+  
+}
+.box-style{
+    /* margin-top: 10px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.box-style input{
+    font-size: 18px;
+    padding-left: 10px;
+    width: 300px;
+    height: 48px;
+    margin: 15px 0 15px 0;
+    border-radius: 15px;
+    border: 2px solid rgb(144, 225, 240);
+    background-color: rgba(254, 253, 253, 0.5);
+}
+.box-style input:hover{
+    background-color: rgba(251, 220, 220, 0.2);
+}
+.form-btn {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: gray;
+    padding-right: 15px !important;
+    width: 316px !important; 
+} 
+
+
+/* 标题 */
+.title{
+    margin: 40px 10px 0  10px ;
+    font-size: 25px;
+    font-weight: bolder;
+    background-image: linear-gradient(to right, rgb(41, 171, 223), rgb(3, 216, 188));
+    -webkit-background-clip: text;
+    color: transparent;
+  
+}

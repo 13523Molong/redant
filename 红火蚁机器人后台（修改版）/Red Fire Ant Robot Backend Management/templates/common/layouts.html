@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>红火蚁灾情防治及机器人调度平台</title>
+
+    <link href="{{ static_url('bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ static_url('font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+
+    <link href="{{static_url('CSS/animate.css')}}" rel="stylesheet">
+    <link href="{{ static_url('CSS/style.css') }}" rel="stylesheet">
+    {%block css %}{% end %}
+    <style>
+        body {
+            font-size: large;
+        }
+
+        /* 退出登录的样式 */
+
+        /* 样式定义 */
+        .modal {
+            display: none;
+            /* 默认隐藏 */
+            position: fixed;
+            /* 固定定位 */
+            z-index: 1;
+            /* 置于顶层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            /* 允许滚动 */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* 背景颜色（透明） */
+        }
+
+        .modal-content {
+            background-color: #e0f7fa;
+            /* 浅蓝色背景 */
+            margin: 15% auto;
+            /* 中心显示 */
+            padding: 20px;
+            /* 内边距 */
+            border: 1px solid #b2ebf2;
+            /* 边框 */
+            width: 40%;
+            /* 宽度 */
+            border-radius: 10px;
+            /* 圆角 */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            /* 阴影 */
+        }
+
+        .close {
+            color: #00796b;
+            /* 关闭按钮颜色 */
+            float: right;
+            /* 右对齐 */
+            font-size: 28px;
+            /* 字体大小 */
+            font-weight: bold;
+            /* 加粗 */
+            cursor: pointer;
+            /* 指针 */
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #004d40;
+            /* 悬停和聚焦时的颜色 */
+            text-decoration: none;
+            /* 无下划线 */
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            /* 文本字体大小 */
+            color: #004d40;
+            /* 文本颜色 */
+        }
+
+        .modal-content button {
+            background-color: #4dd0e1;
+            /* 按钮背景颜色 */
+            color: white;
+            /* 按钮文本颜色 */
+            border: none;
+            /* 无边框 */
+            padding: 10px 20px;
+            /* 内边距 */
+            text-align: center;
+            /* 文本居中 */
+            text-decoration: none;
+            /* 无下划线 */
+            display: inline-block;
+            /* 内联块 */
+            font-size: 16px;
+            /* 字体大小 */
+            margin: 4px 2px;
+            /* 外边距 */
+            cursor: pointer;
+            /* 指针 */
+            border-radius: 5px;
+            /* 圆角 */
+            transition: background-color 0.3s;
+            /* 背景颜色渐变 */
+        }
+
+        .modal-content button:hover {
+            background-color: #26c6da;
+            /* 悬停时背景颜色 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>你确定要退出登录吗？</p>
+            <button id="confirmBtn">确定</button>
+            <button id="cancelBtn">取消</button>
+        </div>
+    </div>
+
+    <div id="wrapper">
+
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <img alt="image" class="rounded-circle" src="{{ static_url('photos/daifu.jpeg') }}"
+                                style="width:80px;height:80px" />
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span id='item1' class="block m-t-xs font-bold" style="font-size: 17px;"></span>
+                                <span id='item2' class="text-muted text-xs block" style="font-size: 14px;"> <b
+                                        class="caret"></b></span>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a class="dropdown-item" href="/account/new_index">修改个人信息</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/login">退出登录</a></li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">
+                            UP
+                        </div>
+                    </li>
+                    <li class="default">
+                        <a href="/"><i class="fa fa-desktop"></i> <span class="nav-label">首页</span></a>
+                    </li>
+                    <li class="account">
+                        <a href="/account/new_index"><i class="fa fa-user fa-lg"></i> <span
+                                class="nav-label">修改个人信息</span></a>
+                    </li>
+                    <li class="give_point">
+                        <a href="/give_point/index"><i class="fa fa-dot-circle-o"></i> <span
+                                class="nav-label">选点导航</span></a>
+                    </li>
+                    <!-- <li class="give_point_one">
+                        <a href="/give_point_one/index"><i class="fa fa-dot-circle-o"></i> <span class="nav-label">单点选点导航</span></a>
+                    </li> -->
+                    <li class="map">
+                        <a href="/map/index"><i class="fa fa-stumbleupon"></i> <span class="nav-label">地图实时轨迹</span></a>
+                    </li>
+                    <li class="map_yichao">
+                        <a href="/map_yichao/index"><i class="fa fa-newspaper-o"></i> <span
+                                class="nav-label">蚁巢点详细信息</span></a>
+                    </li>
+                    <li class="map_relitu">
+                        <a href="/map_relitu/index"><i class="fa fa-globe"></i> <span
+                                class="nav-label">蚁巢分布热力图</span></a>
+                    </li>
+                    <li class="charts">
+                        <a href="/charts"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">图表化展示</span></a>
+                    </li>
+
+                    <li class="command">
+                        <a href="/command/index"><i class="fa fa-group fa-lg"></i> <span
+                                class="nav-label">机器人任务管理</span> </a>
+                    </li>
+                    <!-- <li class="stat">
+                        <a href="/stat/index"><i class="fa fa-bar-chart fa-lg"></i> <span
+                                class="nav-label">统计管理</span></a>
+
+                    </li> -->
+                    <!-- <li class="eye">
+                        <a href="/eye/index"><i class="fa fa-book fa-lg"></i> <span class="nav-label">设备绑定</span></a>
+
+                    </li> -->
+                    <!-- <li class="email">
+                        <a href="#"><i class="fa fa-bell fa-lg"></i> <span class="nav-label">通知信息</span><span
+                                class="label label-warning float-right">16/24</span></a>
+                    </li> -->
+                </ul>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="white-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i
+                                class="fa fa-bars"></i> </a>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm  welcome-message" style="font-size: 17px;">红火蚁灾情防治及机器人调度平台</span>
+                        </li>
+                        <!-- <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                <i class="fa fa-bell"></i> <span class="label label-primary">8</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-alerts">
+                                <li>
+                                    <a href="mailbox.html">
+                                        <div>
+                                            <i class="fa fa-envelope fa-fw"></i> You have 16 messages
+                                            <span class="float-right text-muted small">4 minutes ago</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <a href="profile.html">
+                                        <div>
+                                            <i class="fa fa-twitter fa-fw"></i> 3 New Followers
+                                            <span class="float-right text-muted small">12 minutes ago</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <a href="grid_options.html">
+                                        <div>
+                                            <i class="fa fa-upload fa-fw"></i> Server Rebooted
+                                            <span class="float-right text-muted small">4 minutes ago</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="notifications.html">
+                                            <strong>See All Alerts</strong>
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li> -->
+
+
+                        <li>
+                            <a id="logoutBtn">
+                                <i class="fa fa-sign-out"></i> 退出登录
+                            </a>
+                        </li>
+                    </ul>
+
+                </nav>
+            </div>
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h2>{%block title %}{% end %}</h2>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/">主页</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            <strong>{%block title %}{% end %}</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div class="col-lg-2">
+
+                </div>
+            </div>
+
+
+            <div class="wrapper wrapper-content animated fadeInRight">
+                {% block content %}{% end %}
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+    <!-- Mainly scripts -->
+    <script src="{{ static_url('plugins/jquery-3.1.1.min.js')}}"></script>
+    <script src="{{ static_url('JS/js/popper.min.js')}}"></script>
+    <script src="{{ static_url('bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ static_url('JS/js/plugins/metisMenu/jquery.metisMenu.js')}}"></script>
+    <script src="{{ static_url('JS/js/plugins/slimscroll/jquery.slimscroll.min.js')}}"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="{{ static_url('JS/js/inspinia.js')}}"></script>
+    <script src="{{ static_url('JS/js/plugins/pace/pace.min.js')}}"></script>
+
+    <script src="{{ static_url('JS/js/plugins/slimscroll/jquery.slimscroll.min.js')}}"></script>
+    <!-- 自定义js -->
+    <script src="{{ static_url('plugins/layer/layer.js') }}"></script>
+    <script charset="UTF-8" src="{{ static_url('JS/common.js') }}"></script>
+
+    {%block js %}{% end %}
+    <script>
+        // 获取元素
+        var modal = document.getElementById("myModal");
+        var btn = document.getElementById("logoutBtn");
+        var span = document.getElementsByClassName("close")[0];
+        var confirmBtn = document.getElementById("confirmBtn");
+        var cancelBtn = document.getElementById("cancelBtn");
+
+        // 点击按钮显示弹窗
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // 点击关闭按钮隐藏弹窗
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // 点击取消按钮隐藏弹窗
+        cancelBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // 点击确定按钮清除cookie和token并跳转到登录页面
+        confirmBtn.onclick = function () {
+            // 清除所有cookie
+            document.cookie.split(";").forEach(function (c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+
+            // 清除localStorage中的token
+            localStorage.removeItem("token");
+
+            // 刷新页面
+            window.location.reload();
+
+            // // 跳转到登录页面
+            // disableBackButton();
+            // window.location.href = common_ops.buildUrl("/login");
+        }
+
+        // 点击窗口外部隐藏弹窗
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // 禁用后退按钮
+        function disableBackButton() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+            };
+        }
+
+        // 在页面加载时禁用后退按钮
+        disableBackButton();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 发起GET请求的函数
+            function fetchData() {
+                const url = common_ops.buildUrl("/account/api"); // 在这里替换成你实际的URL
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络响应失败');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        renderData(data);
+                    })
+                    .catch(error => {
+                        console.error('请求失败:', error);
+                    });
+            }
+
+            // 处理返回值并渲染到HTML的<li>元素中的函数
+            function renderData(data) {
+                // 假设返回的数据中包含两个字段：field1和field2
+                const item1 = document.getElementById('item1');
+                const item2 = document.getElementById('item2');
+
+                item1.textContent = data['nickname'];
+                item2.textContent = data['login_name'];
+            }
+
+            // 调用fetchData函数来发起请求
+            fetchData();
+        });
+    </script>
+</body>
+
+</html>

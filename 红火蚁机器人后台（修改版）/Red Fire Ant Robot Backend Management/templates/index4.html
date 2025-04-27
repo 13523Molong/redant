@@ -1,0 +1,65 @@
+{% extends "./common/layouts.html" %}
+{%block title %}红火蚁灾情防治及机器人调度平台{% end %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-primary pull-right">日统计</span>
+                    <h5>发现红火蚁总数</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">2</h1>
+                    <small>近30日：35</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-primary pull-right">日统计</span>
+                    <h5>消杀红火蚁总数</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">1</h1>
+                    <small>近30日：30</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-primary pull-right">日统计</span>
+                    <h5>添加机器人总数</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">0</h1>
+                    <small>近30日新增：4</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-primary pull-right">日统计</span>
+                    <h5>运行中小车总数</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">1</h1>
+                    <small>近30日：1</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex">
+        <div id="title1">欢迎使用红火蚁灾情防治及机器人调度平台</div>
+    </div>
+    <div class="flex">
+        <a href="/map/index" id="buttonA">点击查看小车轨迹图</a>
+    </div>
+</div>
+{% end %}
+{% block css %}
+<link href="{{static_url('CSS/index4.css')}}" rel="stylesheet">
+{% end %}

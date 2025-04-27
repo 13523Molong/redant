@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../static/CSS/login.css">
+    <!-- 图标字体库 -->
+    <link rel="stylesheet" href="../static/paggage/iconfont.css">
+    <title>登录页面</title>
+</head>
+<body>
+    <div class="login-box">
+        <div class="title">红火蚁灾情防治及机器人调度平台</div>
+        <img src="../static/photos/login_photo.png" class="img">
+        <div class="form box-style" role="form">
+            <input id="name-input" class="form-text sub" type="text" name="login_name" placeholder="请输入用户名">
+            <input id="pwd-input" class="form-pwd sub" type="password" name="login_pwd" placeholder="请输入密码">
+            <input id="btn" class="form-btn do-login" type="button"  value="立即登录">
+        </div>
+    </div>
+
+</body>
+
+
+<script type="text/javascript" src="{{ static_url('plugins/jquery-2.1.1.js') }}"></script>
+<script src="{{static_url('JS/common.js')}}"></script>
+<script src="{{static_url('JS/login.js')}}"></script>
+<script  src="{{ static_url('bootstrap/bootstrap.min.js') }}"></script>
+<script src="{{ static_url('plugins/layer/layer.js') }}"></script>
+
+<script>
+   //禁用浏览器的后退按钮
+    document.addEventListener('keydown', function(event){
+    if (event.key == 'Backspace') {
+            event.preventDefault();
+    }})
+
+    history.pushState(null, document.title, location.href);
+        window.addEventListener('popstate', function (event) {
+            history.pushState(null, document.title, location.href);
+        });
+</script>
+
+

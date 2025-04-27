@@ -1,0 +1,114 @@
+{% extends "../common/layouts.html" %}
+{% block title %}添加小车测试数据（以后发展为接口）{%end%}
+{% block content %}
+<style>
+    .upload-container {
+    width: 300px;
+    
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="file"] {
+    display: block;
+    margin-bottom: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+</style>
+<div class="row  border-bottom">
+    <div class="col-lg-12">
+        <div class="tab_title">
+            <ul class="nav nav-pills">
+                <li class="current">
+                    <a href="/map/index">小车信息</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row m-t  wrap_account_set">
+    <div class="col-lg-12">
+        <h2 class="text-center">小车设置</h2>
+        <div class="form-horizontal m-t m-b">
+            <div class="form-group">
+                <label class="col-lg-2 control-label">小车编号:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="carID" class="form-control" placeholder="请输入小车编号~~"
+                        >
+                </div>
+            </div>
+            
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">工作状态:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="workstate" class="form-control" placeholder="请输入工作状态~~"
+                        >
+                </div>
+            </div>
+
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">时间戳:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="time" class="form-control" placeholder="请输入时间戳~~" >
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">经度:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="longitude" class="form-control" autocomplete="off" placeholder="请输入经度~~"
+                        >
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">纬度:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="latitude" class="form-control" autocomplete="off" placeholder="请输入纬度~~"
+                        >
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">是否复查:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="is_sanitized" class="form-control" autocomplete="off" placeholder="请输入纬度~~">
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="upload-container">
+                    
+                    <form id="uploadForm">
+                        <input type="file" name="image" id="imageInput" accept="image/*" required>
+                        <button type="submit">上传图片</button>
+                    </form>
+                    <div id="statusMessage"></div>
+                </div>
+            </div>
+                <div class="col-lg-4 col-lg-offset-2">
+                    <button class="btn btn-w-m btn-outline btn-primary save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block js %}
+<script src="{{static_url('JS/map/api.js')}}"></script>
+{% end %}

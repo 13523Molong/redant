@@ -1,0 +1,78 @@
+{% extends "../common/layouts.html" %}
+{%block title %}数据统计管理{% end %}
+{% block content %}
+
+<style>
+    .c_t_title {
+        white-space: nowrap;
+        font-size: 26px;
+    }
+</style>
+
+<div id="cbox">
+    <div id="cbox-title">
+        <div class="hr"></div>
+        <div class="title_left">|</div>
+        <div class="c_t_title">环境数据分析</div>
+        <div class="title_right">|</div>
+        <div class="hr"></div>
+
+    </div>
+    <div class="body">
+        <div class="body_items">
+            <div class="body_item" id="obj_val"></div>
+
+            <div id="map" class="map"></div>
+            <div class="body_item" id="room_val"></div>
+
+        </div>
+        <div class="body_items2">
+            <div class="body_item2" id="mem_val"></div>
+            <div class="map1">
+                <div class="map_box">
+                    <div>整个校区环境终端集群数：</div>
+                    <div class="high_light">20</div>
+                </div>
+                <div class="map_box">
+                    <div>正在运行的环境终端集群：</div>
+                    <div class="high_light">1号、2号、6号</div>
+                </div>
+
+
+                <div class="map_box">
+                    <div>离线的集群：</div>
+                    <div class="high_light">17</div>
+                </div>
+
+                <div class="map_box">
+                    <div>命令下发状态：</div>
+                    <div class="high_light">正常</div>
+                </div>
+                <div class="map_box">
+                    <div>一周出现异常状况次数：</div>
+                    <div class="high_light">0</div>
+                </div>
+
+            </div>
+            <div class="body_item2" id="warning_val"></div>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% end %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{static_url('CSS/stat.css')}}">
+{% end %}
+{% block js %}
+<script src="{{static_url('JS/stat/echarts.min.js')}}"></script>
+<script type="text/javascript" src="{{static_url('JS/stat/stat.js')}}"></script>
+{% end %}
+
+
+
+
+
+

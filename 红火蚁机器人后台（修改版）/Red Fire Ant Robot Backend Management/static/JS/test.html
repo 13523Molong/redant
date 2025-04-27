@@ -1,0 +1,378 @@
+{% extends "../common/layouts.html" %}
+{%block title %}红火蚁灾情防治及机器人调度平台{% end %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    <button class="btn" id="fitall">自适应所有标记</button>
+    <div id="container"></div>
+    <div class="row">
+        <div class="col-lg-12">
+            <form class="form-inline wrap_search">
+                <div class="row m-t p-w-m">
+                    <div class="form-group">
+                        <select name="status" class="form-control inline">
+                            <option value="-1">请选择状态</option>
+
+                            <!--循环展示-->
+                            {% for tmp_key in resp_data['status_mapping'] %}
+                            <option value="{{tmp_key}}" {% if tmp_key==resp_data['search_con']['status'] %} selected {%
+                                end %}>{{resp_data['status_mapping'][tmp_key]}}</option>
+                            {% end %}
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" name="mix_kw" placeholder="请输入序号或者地点" class="form-control"
+                                value="{{resp_data['search_con']['mix_kw']}}">
+                            <input type="hidden" name="p" value="{{resp_data['search_con']['p']}}">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-primary search">
+                                    <i class="fa fa-search"></i>搜索
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a class="btn btn-w-m btn-outline btn-primary pull-right" href="/map/set">
+                            <i class="fa fa-plus"></i>添加小车
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered m-t">
+                <thead>
+                    <tr>
+                        <th>小车序号</th>
+                        <th>工作地点</th>
+                        <th>工作状态</th>
+                        <th>显示状态</th>
+                        <th>小车轨迹显示</th>
+                        <th>查看/修改</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if resp_data['list'] %}
+                    <!--模板循环-->
+                    {% for item in resp_data['list'] %}
+                    <tr>
+                        <td>{{item['carID']}}</td>
+                        <td>{{item['position']}}</td>
+                        {% if item['workstate']==0 %}
+                        <td>未运行</td>
+                        {% elif item['workstate']==1 %}
+                        <td>正常巡航</td>
+                        {% elif item['workstate']==2 %}
+                        <td>标记/消杀中</td>
+                        {% end %}
+                        <td>显示中</td>
+                        <td>
+                            <input class="addOverlayGroup" type="button" class="btn" value="显示"
+                                id="{{item['carID']}}" />
+                            <input class="removeOverlayGroup" type="button" class="btn" value="隐藏"
+                                id="{{item['carID']}}" />
+                        </td>
+                        <td>
+                            <a href="/map/info?id={{item['carID']}}">
+                                <i class="fa fa-eye fa-lg"></i>
+                            </a>
+                            {% if item['status']==1 %}
+                            <a class="m-l" href="/map/set?id={{item['carID']}}">
+                                <i class="fa fa-edit fa-lg"></i>
+                            </a>
+                            {% else %}
+                            <a class="m-l recover" href="javascript:void(0);" data="{{item['carID']}}">
+                                <i class="fa fa-rotate-left fa-lg"></i>
+                            </a>
+                            {% end %}
+                        </td>
+                    </tr>
+                    {% end %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5">暂无数据~~~</td>
+                    </tr>
+                    {% end %}
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <span class="pagination_count" style="line-height: 40px;">共{{ resp_data['pages']['total'] }}条记录 |
+                        每页{{resp_data['pages']['page_size']}}条</span>
+                    <ul class="pagination pagination-lg   pull-right" style="margin: 0 0 ;">
+                        {% if resp_data['pages']['is_prev'] == 1 %}
+                        <li>
+                            <a href="{{ resp_data['pages']['url'] }}&p=1"><span>首页</span></a>
+                        </li>
+                        {% end %}
+
+                        {% for idx in resp_data['pages']['range'] %}
+                        {% if idx == resp_data['pages']['current'] %}
+                        <li class="active"><a href="javascript:void(0);">{{ idx }}</a></li>
+                        {% else %}
+                        <li><a href="{{ resp_data['pages']['url'] }}&p={{idx}}">{{ idx }}</a></li>
+                        {% end %}
+                        {% end %}
+                        {% if resp_data['pages']['is_next'] == 1 %}
+                        <li>
+                            <a
+                                href="{{ resp_data['pages']['url'] }}&p={{ resp_data['pages']['total_pages'] }}"><span>尾页</span></a>
+                        </li>
+                        {% end %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <a class="btn btn-w-m btn-outline btn-primary " href="/map/api">
+                        测试数据入口
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <table class="table table-bordered m-t" style="margin:5px;">
+        <thead>
+            <tr>
+                <th>小车编号</th>
+                <th>工作地点</th>
+                <th>显示状态</th>
+                <th>小车轨迹显示</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>001</td>
+                <td>深圳市南山区粤海街道</td>
+                <td>显示中</td>
+                <td>
+                    <a class="ratio_on remove" href="javascript:void(0);" >
+                        <input class="addOverlayGroup" type="button" class="btn" value="显示" />
+                        <input class="removeOverlayGroup" type="button" class="btn" value="隐藏" />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>001</td>
+                <td>暂无数据</td>
+                <td>已隐藏</td>
+                <td>
+                    <a class="ratio_on remove" href="javascript:void(0);">
+                        <input class="addOverlayGroup" type="button" class="btn" value="显示" />
+                        <input class="removeOverlayGroup" type="button" class="btn" value="隐藏" />
+                    </a>
+                </td>
+            </tr> 
+        </tbody>
+    </table>-->
+
+</div>
+{% end %}
+{% block css %}
+<link href="{{static_url('CSS/map/index.css')}}" rel="stylesheet">
+{% end %}
+{% block js %}
+<script src="https://webapi.amap.com/loader.js"></script>
+<script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: "82da1cc5467a95e168c358757d4c6ef5",
+    };
+</script>
+<script src="https://webapi.amap.com/loader.js"></script>
+<script type="text/javascript">
+    AMapLoader.load({
+        key: "6c889de4ee1c73ea291466419487e294", //申请好的Web端开发者 Key，调用 load 时必填
+        version: "2.0", //指定要加载的 JS API 的版本，缺省时默认为 1.4.15
+    })
+        .then((AMap) => {
+            const map = new AMap.Map("container", {
+                viewMode: "2D", //默认使用 2D 模式
+                zoom: 17, //地图级别
+                center: [113.93753, 22.52748], //地图中心点
+            });
+
+            //根据覆盖物的范围显示地图
+            document.querySelector("#fitall").onclick = function () {
+                map.setFitView();
+            }
+
+
+
+            //保存红火蚁窝，实际上也是折线上的某些点，后期可以通过状态码来判断传入的经纬度是否要传入该数组中。
+            const warnArrss = [[
+                [113.92754, 22.53645],
+                [113.94559, 22.55743],
+                [113.95753, 22.56541]
+            ], [
+                [113.90754, 22.50645],
+                [113.92559, 22.52743],
+                [113.93753, 22.54541]
+            ]];
+            //绘制折线
+            const lineArrss = [[
+                [113.93356, 22.53649],
+                [113.94754, 22.52645],
+                [113.96559, 22.56743],
+                [113.97153, 22.55541],
+                [113.98559, 22.55743],
+                [113.99753, 22.52541]
+            ], [
+                [113.91356, 22.52649],
+                [113.92754, 22.53645],
+                [113.94559, 22.55743],
+                [113.95753, 22.56541],
+                [113.96559, 22.57743],
+                [113.97753, 22.58541]
+            ]];
+            for (let k = 0; k < length.lineArrss; k++) {
+                var polyline = new AMap.Polyline({
+                    showDir: true, //显示路线方向剪头
+                    dirColor: 'pink',
+                    path: lineArrss[k], //设置线覆盖物路径
+                    strokeColor: "#3366FF", //线颜色
+                    strokeWeight: 10, //线宽
+                    strokeStyle: "solid", //线样式
+                });
+                map.add(polyline);
+                //添加/移除覆盖物群&红火蚁点位标记
+                var lineArrs = [polyline]
+                var warnArr = warnArrss[k]
+                var markers = [];
+                for (var i = 0; i < warnArr.length; i++) {
+                    var warnPoint = warnArr[i];
+                    // 创建点实例
+                    var marker = new AMap.Marker({
+                        offset: new AMap.Pixel(-7, -26),
+                        position: new AMap.LngLat(warnPoint[0], warnPoint[1]),
+                        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b' + (i + 1) + '.png',
+                        extData: {
+                            id: i + 1
+                        },
+
+                    });
+                    map.add(marker);
+                    markers.push(marker);
+                }
+                // 创建覆盖物群组，并将 marker 传给 OverlayGroup
+                var overlayGroups = new AMap.OverlayGroup(markers);
+                var overlayGroups2 = new AMap.OverlayGroup(lineArrs);
+                // 添加覆盖物群组
+                function addOverlayGroup() {
+                    map.add(overlayGroups2);
+                    map.add(overlayGroups);
+                }
+                // 移除覆盖物群组
+                function removeOverlayGroup() {
+                    map.remove(overlayGroups2);
+                    map.remove(overlayGroups);
+                }
+                // 绑定事件
+                document.querySelector(".addOverlayGroup" + "#" + i + 1).onclick = addOverlayGroup;
+                document.querySelector(".removeOverlayGroup" + "#" + i + 1).onclick = removeOverlayGroup;
+                //批量给标记点绑定点击弹窗信息
+                const stime = 1212 //12月12日
+                const liveOrNot = '存活'
+                var infoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -25) });
+                for (var i = 0, marker3; i < markers.length; i++) {
+                    var marker3 = markers[i]
+                    marker3.content = '第' + (i + 1) + '个红火蚁窝点' + '发现时间:' + stime + '存活状态:' + liveOrNot;
+                    marker3.on('click', markerClick);
+                    marker3.emit('click', { target: marker3 });
+                }
+                function markerClick(e) {
+                    infoWindow.setContent(e.target.content);
+                    infoWindow.open(map, e.target.getPosition());
+                }
+                map.setFitView();
+            }
+        })
+        .catch((e) => {
+            console.error(e); //加载错误提示
+        });
+
+
+
+
+
+    // //鼠标点击marker弹出自定义的信息窗体
+    // marker.on('click', function () {
+    //     infoWindow.open(map, marker.getPosition());
+    // });
+    // //实例化信息窗体
+    // var title = '方恒假日酒店<span style="font-size:11px;color:#F00;">价格:318</span>',
+    //     content = [];
+    // content.push("<img src='http://tpc.googlesyndication.com/simgad/5843493769827749134'>地址：北京市朝阳区阜通东大街6号院3号楼东北8.3公里");
+    // content.push("电话：010-64733333");
+    // content.push("<a href='https://ditu.amap.com/detail/B000A8URXB?citycode=110105'>详细信息</a>");
+    // var infoWindow = new AMap.InfoWindow({
+    //     isCustom: true,  //使用自定义窗体
+    //     content: createInfoWindow(title, content.join("<br/>")),
+    //     offset: new AMap.Pixel(16, -45)
+    // });
+
+    // //构建自定义信息窗体
+    // function createInfoWindow(title, content) {
+    //     var info = document.createElement("div");
+    //     info.className = "custom-info input-card content-window-card";
+
+    //     //可以通过下面的方式修改自定义窗体的宽高
+    //     info.style.width = "400px";
+    //     // 定义顶部标题
+    //     var top = document.createElement("div");
+    //     var titleD = document.createElement("div");
+    //     var closeX = document.createElement("img");
+    //     top.className = "info-top";
+    //     titleD.innerHTML = title;
+    //     closeX.src = "https://webapi.amap.com/images/close2.gif";
+    //     closeX.onclick = closeInfoWindow;
+
+    //     top.appendChild(titleD);
+    //     top.appendChild(closeX);
+    //     info.appendChild(top);
+
+    //     // 定义中部内容
+    //     var middle = document.createElement("div");
+    //     middle.className = "info-middle";
+    //     middle.style.backgroundColor = 'white';
+    //     middle.innerHTML = content;
+    //     info.appendChild(middle);
+
+    //     // 定义底部内容
+    //     var bottom = document.createElement("div");
+    //     bottom.className = "info-bottom";
+    //     bottom.style.position = 'relative';
+    //     bottom.style.top = '0px';
+    //     bottom.style.margin = '0 auto';
+    //     var sharp = document.createElement("img");
+    //     sharp.src = "https://webapi.amap.com/images/sharp.png";
+    //     bottom.appendChild(sharp);
+    //     info.appendChild(bottom);
+    //     return info;
+    // }
+
+    // //关闭信息窗体
+    // function closeInfoWindow() {
+    //     map.clearInfoWindow();
+    // }
+
+    // <div class="input-card">
+    //         <h4>左击获取经纬度：</h4>
+    //         <div class="input-item">
+    //             <input type="text" readonly="true" id="lnglat">
+    //         </div>
+    //     </div>
+    //  //为地图注册click事件获取鼠标点击出的经纬度坐标
+    // map.on('click', function (e) {
+    //     document.getElementById("lnglat").value = e.lnglat.getLng() + ',' + e.lnglat.getLat()
+    // });
+
+
+
+</script>
+{% end %}

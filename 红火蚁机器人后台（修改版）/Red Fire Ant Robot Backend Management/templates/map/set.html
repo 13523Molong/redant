@@ -1,0 +1,54 @@
+{% extends "../common/layouts.html" %}
+{% block title %}添加新的小车{%end%}
+{% block content %}
+<div class="row  border-bottom">
+    <div class="col-lg-12">
+        <div class="tab_title">
+            <ul class="nav nav-pills">
+                <li class="current">
+                    <a href="/map/index">小车基础信息</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row m-t  wrap_account_set">
+    <div class="col-lg-12">
+        <h2 class="text-center">小车设置</h2>
+        <div class="form-horizontal m-t m-b">
+            <div class="form-group">
+                <label class="col-lg-2 control-label">小车编号:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="carID" class="form-control" placeholder="请输入小车编号~~" value="{{info['carID']}}">
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">工作地点:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="position" class="form-control" placeholder="请输入小车工作地点~~"
+                        value="{{info['position']}}">
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">工作状态:</label>
+                <div class="col-lg-10">
+                    <input type="text" name="workstate" class="form-control" placeholder="请输入工作状态~~"
+                        value="{{info['workstate']}}">
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-lg-4 col-lg-offset-2">
+                    <input type="hidden" name="id" value="{{info['carID']}}">
+                    <button class="btn btn-w-m btn-outline btn-primary save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+{% block js %}
+<script src="{{static_url('JS/map/set.js')}}"></script>
+{% end %}

@@ -1,0 +1,148 @@
+{% extends "../common/layouts.html" %}
+{%block title %}环境终端集群{% end %}
+{% block content %}
+
+{% if resp_data['box_bind_data'] %}
+{% for item in resp_data['box_bind_data'] %}
+<div id="cbox">
+    <table class="table table-bordered m-t" style="margin:5px;">
+        <div class="title"><div>环境终端集群{{item['box_name']}}号</div></div>
+        <thead>
+            <tr>
+                <th>智能模块名称</th>
+                <th>智能模块序列号</th>
+                <th>绑定状态</th>
+                <th>是否绑定</th>
+            </tr>
+        </thead>
+        <tbody>
+<!--土壤模块-->
+            {% if item['soil_id'] and item['soil_status'] == 1 %}
+                <tr>
+                    <td>土壤模块</td>
+                    <td>{{item['soil_id']}}</td>
+                    <td>已绑定</td>
+                    <td>
+                        <a class="ratio_on remove"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['soil_id']}}" module_name="土壤模块">
+                            <div class="ball"></div>
+                            <div class="on"><div>ON</div></div>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>土壤模块</td>
+                    <td>暂无数据</td>
+                    <td>未绑定</td>
+                    <td>
+                        <a class="ratio_off recover"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['soil_id']}}" module_name="土壤模块">
+                            <div class="off"><div>OFF</div></div>
+                             <div class="ball"></div>
+                        </a>
+                    </td>
+                </tr>
+            {% end %}
+<!--水肥一体化模块-->
+          {% if item['fertilizer_id']  and item['fertilizer_status'] == 1 %}
+                <tr>
+                    <td>水肥一体化模块</td>
+                    <td>{{item['fertilizer_id']}}</td>
+                    <td>已绑定</td>
+                    <td>
+                        <a class="ratio_on remove"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['fertilizer_id']}}" module_name="水肥一体化模块">
+                            <div class="ball"></div>
+                            <div class="on"><div>ON</div></div>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>水肥一体化模块</td>
+                    <td>暂无数据</td>
+                    <td>未绑定</td>
+                    <td>
+                        <a class="ratio_off recover"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['fertilizer_id']}}" module_name="水肥一体化模块">
+                            <div class="off"><div>OFF</div></div>
+                             <div class="ball"></div>
+                        </a>
+                    </td>
+                </tr>
+            {% end %}
+<!--温湿度模块-->
+           {% if item['T_H_id'] and item['T_H_status'] == 1 %}
+                <tr>
+                    <td>温湿度模块</td>
+                    <td>{{item['T_H_id']}}</td>
+                    <td>已绑定</td>
+                    <td>
+                        <a class="ratio_on remove"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['T_H_id']}}" module_name="温湿度模块">
+                            <div class="ball"></div>
+                            <div class="on"><div>ON</div></div>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>光控模块</td>
+                    <td>暂无数据</td>
+                    <td>未绑定</td>
+                    <td>
+                        <a class="ratio_off recover"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['T_H_id']}}" module_name="温湿度模块">
+                            <div class="off"><div>OFF</div></div>
+                             <div class="ball"></div>
+                        </a>
+                    </td>
+                </tr>
+            {% end %}
+<!--光控模块-->
+            {% if item['light_id'] and item['light_status'] == 1 %}
+                <tr>
+                    <td>光控模块</td>
+                    <td>{{item['light_id']}}</td>
+                    <td>已绑定</td>
+                    <td>
+                        <a class="ratio_on remove"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['light_id']}}" module_name="光控模块">
+                            <div class="ball"></div>
+                            <div class="on"><div>ON</div></div>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>光控模块</td>
+                    <td>暂无数据</td>
+                    <td>未绑定</td>
+                    <td>
+                        <a class="ratio_off recover"  href="javascript:void(0);" data="{{item['box_name']}}" module_data="{{item['light_id']}}" module_name="光控模块">
+                            <div class="off"><div>OFF</div></div>
+                             <div class="ball"></div>
+                        </a>
+                    </td>
+                </tr>
+            {% end %}
+        {% end %}
+
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div>
+    <table>
+         <thead>
+            <tr>请预先绑定您所购买的产品</tr>
+        </thead>
+    </table>
+   
+</div>
+{% end %}
+            
+
+{% end %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{static_url('CSS/bind/bind.css')}}">
+    <link href="{{static_url('CSS/environment/index.css')}}" rel="stylesheet">
+{% end %}
+{% block js %}
+    <script type="text/javascript" src="{{static_url('JS/stat/stat.js')}}"></script>
+    <script src="{{static_url('JS/bind/index.js')}}"></script>
+{% end %}

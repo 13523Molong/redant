@@ -1,0 +1,275 @@
+{% extends "../common/layouts.html" %}
+{% block title %}红火蚁灾情防治及机器人调度平台{% end %}
+{% block content %}
+<script src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294"></script>
+<style>
+    /* 关于蚁巢信息弹窗的css如下 */
+    .custom-info-window img {
+        height: 200px;
+        display: block;
+        margin: 10px 0;
+    }
+
+    .toggleBtn {
+        display: inline-block;
+        padding: 3px 5px;
+        color: #007BFF;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        border: 1px solid #007BFF;
+    }
+
+    .toggleBtn:hover {
+        color: white;
+        background-color: #007BFF;
+    }
+
+    .input-item {
+        display: inline-block;
+        font-size: large;
+        font-weight: 500;
+        color: #000;
+    }
+
+    .window-content {
+        font-size: large;
+        font-weight: 500;
+        color: #000;
+    }
+
+    .content-window-card {
+        position: relative;
+        width: 20rem;
+        padding: 0.75rem 0 0 1.25rem;
+        box-shadow: none;
+        bottom: 0;
+        left: 0;
+    }
+
+    .content-window-card p {
+        height: 2rem;
+    }
+
+    /* 模态框的样式 */
+    .image-modal {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 700px;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .image-modal-content {
+        position: relative;
+        height: 90%;
+    }
+
+    .image-modal-content img {
+        height: 95%;
+        margin: auto;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        color: black;
+        cursor: pointer;
+    }
+
+    /* 新增消杀按钮的样式 */
+    .sanitization-btn {
+        display: inline-block;
+        padding: 5px 10px;
+        color: white;
+        background-color: #ff4c4c;
+        /* 浅红色 */
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .sanitization-btn:hover {
+        background-color: #ff1a1a;
+        /* 更深的红色 */
+    }
+</style>
+<div class="wrapper wrapper-content">
+    <button class="btn" id="fitall">自适应所有标记</button>
+    <div id="container"></div>
+    <div class="input-card"></div>
+</div>
+<!-- 模态框 -->
+<div id="imageModal" class="image-modal">
+    <div class="image-modal-content">
+        <span class="modal-close">&times;</span>
+        <img id="modalImage" src="" alt="Zoomed Image">
+    </div>
+</div>
+{% end %}
+{% block css %}
+<link href="{{static_url('CSS/map/index.css')}}" rel="stylesheet">
+{% end %}
+{% block js %}
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: "82da1cc5467a95e168c358757d4c6ef5",
+    };
+</script>
+<script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.Geocoder"></script>
+<script>
+    // 初始化地图实例
+    var map = new AMap.Map('container', {
+        zoom: 7,
+        center: [113.378688, 22.973147]
+    });
+
+    // 页面加载完就发送请求获取数据
+    window.onload = async function () {
+        try {
+            document.querySelector("#fitall").onclick = function () {
+                map.setFitView();
+            };
+
+            const responseData2 = await fetchCarIds('/map_yichao/api_yichao'); // 蚁巢数据
+            console.log('responseData2:', responseData2);
+            points = responseData2['yichao'];
+
+            points.forEach(function (point) {
+                var marker = new AMap.Marker({
+                    position: [point.longitude, point.latitude],
+                    map: map
+                });
+
+                marker.on('click', function () {
+                    var content = '<div class="custom-info-window">' +
+                        '<p>日期: ' + point.date + '</p>' +
+                        '<p>经纬度: ' + point.latitude + ', ' + point.longitude + '</p>' +
+                        '<p>是否消杀: ' + (point.is_sanitized ? '是' : '否') + '</p>' +
+                        '<p>该照片是否为蚁巢: ' + '是' + '</p>';
+                    console.log(point);
+                    if (!point.is_sanitized) {
+                        content += '<button class="sanitization-btn" onclick="handleSanitization(' + point.carID + ', ' + point.longitude + ', ' + point.latitude + ')">消杀</button>';
+                    }
+
+                    content += '<img class="info-window-image" src="data:image/jpeg;base64,' + point.image + '" alt="image" />' +
+                        '</div>';
+
+                    var infoWindow = new AMap.InfoWindow({
+                        content: content,
+                        offset: new AMap.Pixel(0, -30)
+                    });
+                    infoWindow.open(map, marker.getPosition());
+
+                    document.querySelectorAll('.info-window-image').forEach(function (img) {
+                        img.onclick = function () {
+                            openImageModal(img.src);
+                        };
+                    });
+
+                    window.closeInfoWindow = function () {
+                        infoWindow.close();
+                    };
+                });
+
+                marker.show();
+                map.setFitView(); // 地图刷新后执行一次自适应识图操作
+            });
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // 处理消杀按钮点击事件的函数
+    function handleSanitization(carID, longitude, latitude) {
+        const data = {
+            carID: carID,
+            longitude: longitude,
+            latitude: latitude
+        };
+        console.log('data:', data);
+        fetch(common_ops.buildUrl("/give_point/api_app"), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Success:', result);
+                alert('消杀操作已成功提交！');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交失败，请重试。');
+            });
+    }
+
+    // 打开模态框函数
+    function openImageModal(imageSrc) {
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeBtn = document.querySelector('.modal-close');
+
+        imageModal.style.display = 'flex';
+        modalImage.src = imageSrc;
+
+        closeBtn.onclick = function () {
+            imageModal.style.display = 'none';
+        };
+
+        window.onclick = function (event) {
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        };
+
+        // 图片缩放
+        modalImage.onwheel = function (event) {
+            event.preventDefault();
+            let scale = 1;
+            if (event.deltaY < 0) {
+                scale += 0.1;
+            } else {
+                scale -= 0.1;
+            }
+            scale = Math.min(Math.max(1, scale), 3); // 限制缩放范围
+            modalImage.style.transform = `scale(${scale})`;
+        };
+    }
+
+    // 异步获取数据的函数
+    async function fetchCarIds(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log("xhr.responseText:", xhr.responseText)
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject(new Error(xhr.statusText));
+                    }
+                }
+            };
+            xhr.onerror = function () {
+                reject(new Error(xhr.statusText));
+            };
+            xhr.send();
+        });
+    }
+</script>
+{% end %}

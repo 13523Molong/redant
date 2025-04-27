@@ -1,0 +1,959 @@
+{% extends "../common/layouts.html" %}
+{%block title %}红火蚁灾情防治及机器人调度平台{% end %}
+{% block content %}
+<script src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294"></script>
+<!-- <script type="text/javascript" src='https://a.amap.com/jsapi_demos/static/demo-center/js/prety-json.js'></script>
+<script src="https://a.amap.com/Loca/static/mock/adcodes.js"></script>
+<script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.Geocoder"></script>
+<script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.DistrictSearch"></script>
+<script type="text/javascript" src="https://webapi.amap.com/demos/js/liteToolbar.js"></script> -->
+<style>
+    /* 关于蚁巢信息弹窗的css如下 */
+    /* .custom-info-window {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        } */
+    .custom-info-window img {
+        height: 200px;
+        display: block;
+        margin: 10px 0;
+    }
+
+    /* <div class="wrapper wrapper-content">
+    <div id="container"></div>
+    <br>
+<div class="row m-t  wrap_account_set"> */
+
+    body {
+        font-size: large;
+    }
+
+    .toggleBtn {
+        display: inline-block;
+        padding: 3px 5px;
+        color: #007BFF;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        border: 1px solid #007BFF;
+    }
+
+    .toggleBtn:hover {
+        color: white;
+        background-color: #007BFF;
+    }
+
+    .input-item {
+        display: inline-block;
+        font-size: large;
+        font-weight: 500;
+        color: #000;
+    }
+
+    .window-content {
+        font-size: large;
+        font-weight: 500;
+        color: #000;
+    }
+
+    .content-window-card {
+        position: relative;
+        width: 20rem;
+        padding: 0.75rem 0 0 1.25rem;
+        box-shadow: none;
+        bottom: 0;
+        left: 0;
+    }
+
+    .content-window-card p {
+        height: 2rem;
+    }
+
+    /*————————————————————————————输入框的css————————*/
+    .query-container {
+        width: 300px;
+        margin: 100px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    input {
+        display: block;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        /* 可选，调整按钮间的间距 */
+    }
+
+    button {
+        flex: 1;
+        /* 让按钮在容器中平均分配空间 */
+        padding: 5px;
+        color: #007bff;
+        background-color: #fff;
+        border: 1px solid #007bff;
+        cursor: pointer;
+        border-radius: 10px;
+        margin: 0 5px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+
+    #resultImage {
+        max-width: 100%;
+        cursor: pointer;
+    }
+</style>
+<div class="wrapper wrapper-content">
+    <button class="btn" id="fitall">自适应所有标记</button>
+    <div id="container" class="map"></div>
+    <br>
+    <div class="input-card">
+        <!-- <h4>下属行政区查询</h4> -->
+        <div class="input-item">
+            <div class="input-item-prepend"
+                style='font-size: 15px;border-radius: 2px;border:solid 1px;color: #1ab394;border-color: #1ab394;text-align: center;'>
+                <span class="input-item-text" style="text-align: center;">省市区</span></div>
+            <select id='province'
+                style="width:100px;font-size:15px;background-color: #1ab394;color: white;text-align: center;"
+                onchange='search(this)'></select>
+        </div>
+        <div class="input-item">
+            <div class="input-item-prepend"
+                style='font-size: 15px;border-radius: 2px;border:solid 1px;color: #1ab394;border-color: #1ab394;text-align: center;'>
+                <span class="input-item-text">地级市</span></div>
+            <select id='city'
+                style="width:100px;font-size:15px;background-color: #1ab394;color: white;text-align: center;"
+                onchange='search(this)'></select>
+        </div>
+        <div class="input-item">
+            <div class="input-item-prepend"
+                style='font-size: 15px;border-radius: 2px;border:solid 1px;color: #1ab394;border-color: #1ab394;text-align: center;'>
+                <span class="input-item-text">区县</span></div>
+            <select id='district'
+                style="width:100px;font-size:15px;background-color: #1ab394;color: white;text-align: center;"
+                onchange="search(this)"></select>
+        </div>
+        <!-- 不显示街道 -->
+        <div class="input-item" style="display: none;">
+            <div class="input-item-prepend"><span class="input-item-text">街道</span></div>
+            <select id='street' style="width:100px" onchange='search(this)'></select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- 搜索功能 -->
+            <form class="form-inline wrap_search">
+                <!-- <div class="row m-t p-w-m">
+                    <div class="form-group">
+                        <select name="status" class="form-control inline">
+                            <option value="-1">请选择状态</option>
+
+                            
+                            {% for tmp_key in resp_data['status_mapping'] %}
+                            <option value="{{tmp_key}}" {% if tmp_key==resp_data['search_con']['status'] %} selected {%
+                                end %}>{{resp_data['status_mapping'][tmp_key]}}</option>
+                            {% end %}
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" name="mix_kw" placeholder="请输入序号或者地点" class="form-control"
+                                value="{{resp_data['search_con']['mix_kw']}}">
+                            <input type="hidden" name="p" value="{{resp_data['search_con']['p']}}">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-primary search">
+                                    <i class="fa fa-search"></i>搜索
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>-->
+                <hr>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a class="btn btn-w-m btn-outline btn-primary pull-right" href="/map/set">
+                            <i class="fa fa-plus"></i>添加小车
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered m-t">
+                <thead>
+                    <tr>
+                        <th>小车序号</th>
+                        <th>工作位置信息</th>
+                        <th>工作状态</th>
+                        <th>电量</th>
+                        <th>小车轨迹显示</th>
+                        <th>查看/修改</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="car-table-body">
+                    <!-- 动态生成的内容会插入到这里 -->
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <span class="pagination_count" style="line-height: 40px;">共{{ resp_data['pages']['total'] }}条记录 |
+                        每页{{resp_data['pages']['page_size']}}条</span>
+                    <ul class="pagination pagination-lg   pull-right" style="margin: 0 0 ;">
+                        {% if resp_data['pages']['is_prev'] == 1 %}
+                        <li>
+                            <a href="{{ resp_data['pages']['url'] }}&p=1"><span>首页</span></a>
+                        </li>
+                        {% end %}
+
+                        {% for idx in resp_data['pages']['range'] %}
+                        {% if idx == resp_data['pages']['current'] %}
+                        <li class="active"><a href="javascript:void(0);">{{ idx }}</a></li>
+                        {% else %}
+                        <li><a href="{{ resp_data['pages']['url'] }}&p={{idx}}">{{ idx }}</a></li>
+                        {% end %}
+                        {% end %}
+                        {% if resp_data['pages']['is_next'] == 1 %}
+                        <li>
+                            <a
+                                href="{{ resp_data['pages']['url'] }}&p={{ resp_data['pages']['total_pages'] }}"><span>尾页</span></a>
+                        </li>
+                        {% end %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <a class="btn btn-w-m btn-outline btn-primary " href="/map/api">
+                        测试数据入口
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% end %}
+{% block css %}
+<link href="{{static_url('CSS/map/index.css')}}" rel="stylesheet">
+{% end %}
+{% block js %}
+<!-- <script src="https://webapi.amap.com/loader.js"></script>
+<script src="https://cache.amap.com/lbs/static/es5.min.js"></script> -->
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: "82da1cc5467a95e168c358757d4c6ef5",
+    };
+</script>
+<script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.Geocoder"></script>
+<script>
+    // 初始化地图实例
+    var map = new AMap.Map('container', {
+        zoom: 7,
+        center: [113.378688, 22.973147]
+    });
+    //页面加载完就发送请求获取数据
+    var globalCarIds;
+    var give_point_list;//存储give_point的数据，用于后面拿到每条路线的起点
+    var coordinates = [[]] //初始化coordinates，防止还没获得数据时没有数组，countArea函数报错
+    window.onload = async function () {
+        try {
+            const responseData = await fetchCarIds('/map/data'); //小车行驶数据
+            give_point_list = await fetchCarIds('/give_point/api_index'); //“给定路线”功能下的所有数据
+            console.log('responseData:', responseData);
+            console.log("1_give_point_list：", give_point_list);
+            //处理数据，以获得所有的workstate为2的经纬度数据
+            coordinates = responseData.run_list  //coordinates存储状态为2的经纬度数据，格式：[item.longitude, item.latitude]
+                .filter(item => item.workstate === 2)
+                .map(item => [item.longitude, item.latitude]);
+            let carIdsArray = responseData.list.map(item => item.carID); //存放所有小车ID，格式[1,2,3]
+            // 全局变量保存
+            globalCarIds = carIdsArray;
+            var trajectories = [];
+            // 使用reduce方法替换lodash的groupBy,groups存放格式{，carId1: [{carID: 1, time: 11, workstate: 2, longitude: 113, latitude: 22, …}, {carID: 1, time: 1111, workstate: 2, longitude: 114, latitude: 23, …}]，carId2: [{carID: 2, time: 11, workstate: 2, longitude: 113, latitude: 22, …}, {carID: 2, time: 1111, workstate: 2, longitude: 114, latitude: 23, …}]}
+            const groups = responseData.run_list.reduce((accumulator, currentItem) => {
+                // 如果accumulator中还没有以currentItem.carID为key的项，则创建一个
+                if (!accumulator[currentItem.carID]) {
+                    accumulator[currentItem.carID] = [];
+                }
+                // 将当前项添加到对应carID的数组中
+                accumulator[currentItem.carID].push(currentItem);
+                return accumulator;
+            }, {});
+            console.log("groups:", groups);
+            // 遍历每个carID
+            for (const carId in groups) {
+                const groupItems = groups[carId];
+                console.log("groupItems:", groupItems);
+                var trajectory = {
+                    name: carId.toString(),
+                    points: [],
+                    specialMarkers: [],
+                    polyline: null,
+                    markers: [],
+                    // specialMarkerInfos: []
+                };
+                // 添加常规点
+                for (const item of groupItems) {
+                    trajectory.points.push([item.longitude, item.latitude]);
+                }
+                // 添加特殊标记
+                for (const item of groupItems) {
+                    if (item.workstate === 2) {
+                        trajectory.specialMarkers.push({
+                            position: [item.longitude, item.latitude],
+                            // info: {
+                            //     time: item.created_time,
+                            //     // 如果有其他自定义属性也添加进来
+                            // }
+                        });
+                    }
+                }
+                trajectories.push(trajectory);
+            }
+            console.log("trajectories:", trajectories);
+            performSomeActionsAfterFetchingCarIds(carIdsArray, trajectories, coordinates);
+
+            //构建蚁巢数据
+            const responseData2 = await fetchCarIds('/map/api_yicaho'); //蚁巢数据
+            console.log('responseData2:', responseData2);
+            points = responseData2['yichao']
+            points.forEach(function (point) {
+                var marker = new AMap.Marker({
+                    position: [point.longitude, point.latitude],
+
+                    // 图标实际大小
+                    map: map
+                });
+
+                marker.on('click', function () {
+                    var content = '<div class="custom-info-window">' +
+                        '<p>日期: ' + point.date + '</p>' +
+                        '<p>经纬度: ' + point.latitude + ', ' + point.longitude + '</p>' +
+                        '<p>是否消杀: ' + (point.is_sanitized ? '是' : '否') + '</p>' +
+                        '<img src="data:image/jpeg;base64,' + point.image + '" alt="image" />' +
+                        '</div>';
+
+                    var infoWindow = new AMap.InfoWindow({
+                        content: content,
+                        offset: new AMap.Pixel(0, -30)
+                    });
+                    infoWindow.open(map, marker.getPosition());
+                    window.closeInfoWindow = function () {
+                        infoWindow.close();
+                    };
+                });
+
+                marker.show()
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    //在获取到数据后进行的操作（小车轨迹绘图）
+    function performSomeActionsAfterFetchingCarIds(carIds, trajectories, coordinates) {
+        // 在这里执行你的操作...
+
+        //根据覆盖物的范围显示地图
+        document.querySelector("#fitall").onclick = function () {
+            map.setFitView();
+        }
+
+        var trajectories = trajectories
+        console.log('Performing some actions with car IDs:', carIds);
+        console.log('2', trajectories)
+
+        // 创建折线、普通标记点和特殊标记点
+        trajectories.forEach(function (trajectory, trajectoryIndex) {
+            // 创建折线
+            var polyline = new AMap.Polyline({
+                showDir: true,
+                dirColor: 'black',
+                path: trajectory.points,
+                strokeColor: trajectoryIndex % 2 === 0 ? "#FF0000" : "#00FF00",
+                strokeWeight: 4,
+                strokeOpacity: 1,
+                map: map
+            });
+            trajectory.polyline = polyline;
+
+            //创建特殊标记点并绑定点击事件
+            trajectory.specialMarkers.forEach(function (specialMarker, index) {
+                var specialMarkerObj = new AMap.Marker({
+                    position: specialMarker.position,
+                    map: map,
+                    clickable: true
+                });
+                specialMarkerObj.on('click', function (e) { // 修改开始
+                    console.log('e:', e);
+                    position = e.target.getPosition()
+                    lng = position.lng
+                    lat = position.lat
+                    console.log("position:", position);
+                    console.log("lng:", lng);
+                    console.log("lat:", lat);
+                    var infoWindow = new AMap.InfoWindow({
+                        content: `
+                        经度: ${e.lnglat.lng},
+                        纬度: ${e.lnglat.lat},
+                        
+                    `,
+
+
+                    });
+                    console.log(1)
+                    infoWindow.open(map, position);
+                    console.log(2)
+
+                }); // 修改结束
+
+                trajectory.markers.push(specialMarkerObj);
+            });
+
+        });
+        //自定义属性: ${ specialMarker.info.customAttr }
+        //显示对应的轨迹
+        for (var i = 0; i < carIds.length; i++) {
+            var trajectory = trajectories[i];
+            var button = document.createElement('div');
+            button.className = 'toggleBtn';
+            button.innerText = '显示' + trajectory.name;
+            // 这里假设'#id' + idcontent 是一个有效的CSS选择器，用于定位按钮容器
+            document.querySelector('#id' + trajectory.name).appendChild(button);
+            button.addEventListener('click', (function (i) { // 使用立即执行函数保存轨迹索引
+                return function () {
+                    trajectories[i].polyline.show();
+                    trajectories[i].markers.forEach(function (marker) {
+                        marker.show();
+                    });
+                    // 关闭对应轨迹的所有信息窗口
+                    trajectories[i].specialMarkerInfos.forEach(function (infoWindow) {
+                        if (infoWindow) {
+                            infoWindow.close();
+                        }
+                    });
+                    var showstate = document.querySelector('td.id2' + trajectory.name)
+
+                };
+            })(i)); // 传入当前的i值
+        }
+
+        //隐藏对应的轨迹
+        for (var i = 0; i < carIds.length; i++) {
+            var nowId = carIds[i]
+            var str = `${nowId}`;
+            var trajectory = trajectories[i];
+            var iddom = document.querySelector('td.id' + str);
+            var idcontent = iddom.innerHTML;
+            var button = document.createElement('div');
+            button.className = 'toggleBtn';
+            button.innerText = '隐藏' + trajectory.name;
+            // 这里假设'#id' + idcontent 是一个有效的CSS选择器，用于定位按钮容器
+            document.querySelector('#id' + idcontent).appendChild(button);
+            button.addEventListener('click', (function (i) { // 使用立即执行函数保存轨迹索引
+                return function () {
+
+                    trajectories[i].polyline.hide();
+                    trajectories[i].markers.forEach(function (marker) {
+                        marker.hide();
+                    });
+
+                    // 关闭对应轨迹的所有信息窗口
+                    trajectories[i].specialMarkerInfos.forEach(function (infoWindow) {
+                        if (infoWindow) {
+                            infoWindow.close();
+                        }
+                    });
+                };
+            })(i)); // 传入当前的i值
+        }
+        map.setFitView(); //地图刷新后执行一次自适应识图操作
+
+        //行政区划查询
+        async function loadMapPlugin() {
+            return new Promise((resolve, reject) => {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = '//webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.DistrictSearch';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initMap() {
+            try {
+                await loadMapPlugin();
+                var opts = {
+                    subdistrict: 1,
+                    showbiz: false
+                };
+                district = new AMap.DistrictSearch(opts);
+                district.search('中国', function (status, result) {
+                    if (status == 'complete') {
+                        getData(result.districtList[0]);
+                    }
+                });
+            } catch (error) {
+                console.error('初始化地图出错：', error);
+            }
+        }
+        initMap();
+
+
+    }
+
+    // 异步获取数据的函数
+    async function fetchCarIds(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log("xhr.responseText:", xhr.responseText)
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject(new Error(xhr.statusText));
+                    }
+                }
+            };
+            xhr.onerror = function () {
+                reject(new Error(xhr.statusText));
+            };
+            xhr.send();
+        });
+    }
+
+    //选择显示行政区
+    // 选择显示行政区
+    var map, district, polygons = [], citycode;
+    var citySelect = document.getElementById('city');
+    var districtSelect = document.getElementById('district');
+    var areaSelect = document.getElementById('street');
+
+    // 初始化全局变量：当前区域的红火蚁数量
+    var countCurrentArea = 0;
+
+    // search函数，在每次下拉框里面的值被改变时触发，利用选中的值进行下一行政级数据的搜索
+    function search(obj) {
+        // 清除地图上所有覆盖物
+        for (var i = 0, l = polygons.length; i < l; i++) {
+            polygons[i].setMap(null);
+        }
+        var option = obj[obj.options.selectedIndex];
+
+        console.log("option.text:");
+        console.log(option.text);
+        var adcode = option.adcode;
+        district.setLevel(option.value); // 行政区级别
+        district.setExtensions('all');
+        var area = option.text; // 显示所选的省/市/区的名称
+
+        // 行政区查询
+        district.search(adcode, function (status, result) {
+            if (status === 'complete') {
+                getData(result.districtList[0], obj.id, area);
+            }
+        });
+    }
+
+    // 在拿到search返回的数据后，进行行政区域的绘制（多边形区域），在选择完区级区域时，触发countArea函数，并唤出infowindow
+    function getData(data, level, area) {
+        console.log("data:");
+        console.log(data);
+        console.log("level:");
+        console.log(level);
+        var bounds = data.boundaries;
+        if (bounds) {
+            for (var i = 0, l = bounds.length; i < l; i++) {
+                var polygon = new AMap.Polygon({
+                    map: map,
+                    strokeWeight: 1,
+                    strokeColor: '#0091ea',
+                    fillColor: '#000000',
+                    fillOpacity: 0.2,
+                    path: bounds[i]
+                });
+                polygons.push(polygon);
+            }
+            map.setFitView(); // 地图自适应
+        }
+
+        // 清空下一级别的下拉列表
+        if (level === 'province') {
+            citySelect.innerHTML = '';
+            districtSelect.innerHTML = '';
+            map.clearInfoWindow();
+        } else if (level === 'city') {
+            districtSelect.innerHTML = '';
+            map.clearInfoWindow();
+        } else if (level === 'district') {
+            var districtInfo = data;
+            var center = districtInfo.center;
+            countInArea(coordinates, area).then(function (count) {
+                countCurrentArea = count;
+                console.log(`在${area}的数量：` + count);
+
+                // 获取或生成预测的蚂蚁窝数量
+                let prediction = generateAntNestPrediction(districtInfo.name);
+
+                var info = [];
+                info.push("<div class='input-card content-window-card'></div> ");
+                info.push(`<p class='window-content'>你选择的是：${districtInfo.name}</p>`);
+                info.push(`<p class='window-content'>该区已发现蚂蚁窝: ${countCurrentArea}个</p>`);
+                info.push(`<p class='window-content'>预测：未来可能会出现${prediction}个蚂蚁窝</p></div></div>`);
+
+                var infoWindow = new AMap.InfoWindow({
+                    content: info.join(""),
+                    position: center,
+                });
+
+                infoWindow.open(map, center);
+            });
+        }
+
+        var subList = data.districtList;
+        if (subList) {
+            var contentSub = new Option('--请选择--');
+            var curlevel = subList[0].level;
+            var curList = document.querySelector('#' + curlevel);
+            console.log("curList:");
+            console.log(curList);
+            console.log("contentSub:");
+            console.log(contentSub);
+            curList.add(contentSub);
+            for (var i = 0, l = subList.length; i < l; i++) {
+                var name = subList[i].name;
+                var levelSub = subList[i].level;
+                var cityCode = subList[i].citycode;
+                contentSub = new Option(name);
+                contentSub.setAttribute("value", levelSub);
+                contentSub.center = subList[i].center;
+                contentSub.adcode = subList[i].adcode;
+                curList.add(contentSub);
+            }
+        }
+    }
+
+    // 生成随机三位数并存储在 localStorage 中
+    function generateAntNestPrediction(area) {
+        // 检查 localStorage 是否已经有该区域的预测值
+        let storedPrediction = localStorage.getItem(area);
+        if (storedPrediction) {
+            return storedPrediction;
+        } else {
+            // 生成一个随机的三位数
+            let randomPrediction = Math.floor(100 + Math.random() * 900);
+            // 将该预测值存储到 localStorage 中
+            localStorage.setItem(area, randomPrediction);
+            return randomPrediction;
+        }
+    }
+
+    // 初始化Geocoder对象
+    var geocoder = new AMap.Geocoder({
+        city: "010", // 城市设为北京，默认：“全国”
+    });
+
+    // 计算选定区域中红火蚁数量的函数
+    function countInArea(coordinates, area) { // area 传入选择的区域名字
+        return new Promise(function (resolve, reject) {
+            var AreaCount = 0;
+            var countProcessed = 0;
+            // 循环遍历坐标数组
+            coordinates.forEach(function (coord) {
+                // 逆地理编码获取地址信息
+                geocoder.getAddress(coord, function (status, result) {
+                    countProcessed++;
+                    if (status === 'complete' && result.info === 'OK') {
+                        // 获取行政区划信息
+                        var district = result.regeocode.formattedAddress;
+                        console.log('result');
+                        console.log(result);
+                        // 判断是否在指定区域
+                        if (district.indexOf(`${area}`) !== -1) {
+                            console.log('yes');
+                            AreaCount++;
+                        }
+                    }
+                    // 检查是否所有逆地理编码操作都已完成
+                    if (countProcessed === coordinates.length) {
+                        resolve(AreaCount);
+                    }
+                });
+            });
+        });
+    }
+
+
+    //——————————————————上面是地图操作，下面是一些dom的操作，与地图无关————————————
+
+    function enlargeImage(img) {
+        // 这里可以根据需求实现图片放大功能，例如新开窗口或使用lightbox插件
+        window.open(img.src);
+    }
+
+    ;
+    var map_index_ops = {
+        init: function () {
+            this.eventBind();
+        },
+        eventBind: function () {
+            var that = this;
+            $(".wrap_search .search").click(function () {
+                $(".wrap_search").submit();
+            });
+
+            // 绑定删除和恢复按钮的点击事件
+            $(document).on('click', '.remove', function () {
+                that.ops("remove", $(this).attr("data"));
+            });
+
+            $(document).on('click', '.recover', function () {
+                that.ops("recover", $(this).attr("data"));
+            });
+        },
+        ops: function (act, id) {
+            var callback = {
+                'ok': function () {
+                    $.ajax({
+                        url: common_ops.buildUrl("/map/index"),
+                        type: 'DELETE',
+                        data: {
+                            act: act,
+                            carID: id
+                        },
+                        dataType: 'json',
+                        success: function (res) {
+                            var callback = null;
+                            if (res.code == 200) {
+                                callback = function () {
+                                    window.location.href = window.location.href;
+                                }
+                            }
+                            common_ops.alert(res.msg, callback);
+                        }
+                    })
+                },
+                'cancel': null
+            }
+            common_ops.confirm((act == "remove" ? "确定删除？" : "确定恢复？"), callback);
+        }
+    };
+
+    $(document).ready(function () {
+        map_index_ops.init();
+    });
+
+    // 用于渲染小车表格的js代码
+    document.addEventListener('DOMContentLoaded', function () {
+        var tbody = document.getElementById('car-table-body');
+        var url = common_ops.buildUrl("/map/data");
+        var amapKey = '6c889de4ee1c73ea291466419487e294';
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var resp_data = JSON.parse(xhr.responseText);
+                console.log("resp_data:", resp_data);
+                if (resp_data.list && resp_data.list.length > 0) {
+                    var geocoder = new AMap.Geocoder();
+
+                    resp_data.list.forEach(function (item) {
+                        var lat = item.latitude;
+                        var lon = item.longitude;
+
+                        geocoder.getAddress([lon, lat], function (status, result) {
+                            if (status === 'complete' && result.regeocode) {
+                                var address = result.regeocode.formattedAddress;
+                            } else {
+                                console.error('逆地理编码失败:', result);
+                                var address = '地址获取失败';
+                            }
+
+                            var workstateText = '';
+                            if (item.workstate === 0) {
+                                workstateText = '已关机';
+                            } else if (item.workstate === 1) {
+                                workstateText = '正常巡航中...';
+                            } else if (item.workstate === 2) {
+                                workstateText = '消杀中...';
+                            } else if (item.workstate === 3) {
+                                workstateText = '返回起点中';
+                            } else if (item.workstate === 4) {
+                                workstateText = '待机暂停中';
+                            }
+
+                            // 存储电量数据的对象
+                            let powerData = JSON.parse(localStorage.getItem('powerData')) || {};
+
+                            // 生成并获取电量的方法
+                            function getPower(carID) {
+                                if (!powerData[carID]) {
+                                    powerData[carID] = Math.floor(Math.random() * 101); // 生成0到100的随机数
+                                }
+                                return powerData[carID];
+                            }
+
+                            // 在渲染数据时使用
+                            var power = getPower(item.carID);
+                            var powerText = '';
+
+                            if (item.workstate === 0) {
+                                powerText = `${power}%(关机前)`;
+                            } else if (item.workstate === 1 || item.workstate === 2) {
+                                powerText = `${power}%`;
+                            }
+
+                            // 设置电量文本颜色，当电量 <= 20 时变为红色
+                            if (power <= 20) {
+                                powerText = `<span style="color: red;">${powerText}</span>`;
+                            }
+
+                            // 根据电量设置召回按钮的样式
+                            var recallButton = '';
+                            var pauseButton = '';
+                            if (item.workstate !== 0) {
+                                if (power <= 20) {
+                                    recallButton = `<button class="recall-btn" data-carid="${item.carID}" style="border-color: red; color: red;">召回</button>`;
+                                    pauseButton = `<button class="pause-btn" data-carid="${item.carID}" style="border-color: red; color: red;">${item.workstate === 4 ? '启动' : '暂停'}</button>`;
+                                } else {
+                                    recallButton = `<button class="recall-btn" data-carid="${item.carID}">召回</button>`;
+                                    pauseButton = `<button class="pause-btn" data-carid="${item.carID}">${item.workstate === 4 ? '启动' : '暂停'}</button>`;
+                                }
+
+                            } else {
+                                recallButton = `<button class="recall-btn" disabled style="color: gray; border-color:gray">召回</button>`;
+                                pauseButton = `<button class="pause-btn" disabled style="color: gray; border-color:gray">暂停</button>`;
+                            }
+
+                            // 生成表格行的 HTML
+                            var row = `<tr>
+    <td class="id${item.carID}">${item.carID}</td>
+    <td>${address}</td>
+    <td><strong>${workstateText}</strong></td>
+    <td><strong>${powerText}</strong></td>
+    <td>
+        <div id="id${item.carID}"></div>
+    </td>
+    <td>
+        <a href="/map/info?id=${item.carID}">
+            <i class="fa fa-eye fa-lg"></i>
+        </a>
+        <a class="m-l" href="/map/set?id=${item.carID}">
+            <i class="fa fa-edit fa-lg"></i>
+        </a>
+        <a class="m-l remove" href="javascript:void(0);" data="${item.carID}">
+            <i class="fa fa-trash fa-lg"></i>
+        </a>
+    </td>
+    <td>
+        ${recallButton}
+        ${pauseButton}
+    </td>
+</tr>`;
+
+                            tbody.innerHTML += row;
+                        });
+                    });
+
+                    // 添加事件监听器
+
+                    tbody.addEventListener('click', function (event) {
+                        if (event.target.classList.contains('recall-btn')) {
+                            var carID = event.target.dataset.carid;
+
+                            // 找到对应carid的首条数据
+                            var firstCarData = give_point_list.give_point.find(item => item.carid == carID);
+
+                            if (firstCarData) {
+                                var latitude = firstCarData.latitude;
+                                var longitude = firstCarData.longitude;
+
+                                console.log("carID:", carID, "Latitude:", latitude, "Longitude:", longitude);
+
+                                if (confirm('你确定要召回机器人至起点吗?')) {
+                                    fetch(common_ops.buildUrl('/map/recall'), {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            carID: carID,
+                                            latitude: latitude,  // 动态数据
+                                            longitude: longitude  // 动态数据
+                                        })
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.code == '200') {
+                                                alert('操作成功');
+                                            } else {
+                                                alert('操作失败');
+                                            }
+                                        });
+                                }
+                            } else {
+                                console.error('未找到对应carid的数据');
+                                alert('未找到该机器人的相关数据');
+                            }
+                        } else if (event.target.classList.contains('pause-btn')) {
+                            var carID = event.target.dataset.carid;
+                            var isPaused = event.target.textContent === '暂停';
+                            var action = isPaused ? '暂停' : '启动';
+                            if (confirm(`你确定要${action}该机器人吗?`)) {
+                                fetch(common_ops.buildUrl('/map/pause'), {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        carID: carID,
+                                        start: !isPaused
+                                    })
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.code == '200') {
+                                            alert(`${action}成功`);
+                                            event.target.textContent = isPaused ? '启动' : '暂停';
+                                        } else {
+                                            alert(`${action}失败`);
+                                        }
+                                    });
+                            }
+                        }
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5">暂无数据~~~</td></tr>';
+                }
+            }
+        };
+        xhr.send();
+    });
+
+
+
+
+</script>
+{% end %}

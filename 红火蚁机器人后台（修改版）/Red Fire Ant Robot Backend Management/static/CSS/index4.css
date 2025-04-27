@@ -1,0 +1,25 @@
+.flex{
+    width: 100%;
+    display: flex;
+    justify-content:center;
+    align-items:center
+}
+#title1{
+    margin-top: 2%;
+    font-size: 50px;
+    font-weight: 600;
+}
+#buttonA{
+    margin-top: 15px;
+    padding: 6px 20px;
+    color: #25a5f7;
+    border-radius: 30px;
+    border: 1px solid #25a5f7;
+    box-shadow: 0 0 10px 1px rgba(157, 232, 255, 0.388);
+    font-size: 30px;
+    text-decoration: none;
+}
+#buttonA:hover {
+    color: #fff;
+    background-color: #25a5f7;
+}

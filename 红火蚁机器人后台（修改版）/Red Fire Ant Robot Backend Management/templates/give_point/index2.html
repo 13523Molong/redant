@@ -1,0 +1,492 @@
+{% extends "../common/layouts.html" %}
+{% block title %}地图选点发送指令{% end %}
+{% block content %}
+<style>
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        font-size: large;
+}
+    
+
+
+    .map {
+        height: 100%;
+        width: 100%;
+        float: left;
+    }
+
+    #container {
+        height: 650px;
+    }
+
+    .wrap_account_set {
+        position: absolute;
+        bottom: 36px;
+        right: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        padding: 15px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .form-group input {
+        width: calc(100% - 20px);
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+
+    .form-group .form-inline {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .form-group .form-inline input {
+        width: 48%;
+    }
+
+    .form-group .save {
+        color: #fff;
+        width: 100%;
+        padding: 10px;
+        background-color: #5bc0de;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .form-group button:hover {
+        background-color: #3196d5;
+    }
+
+    /* 切换图层按钮样式 */
+    .toggle-layer-btn {
+        position: absolute;
+        bottom: 120px;
+        right: 25px;
+        background-color: white;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+
+    #clearCoordinatesBtn {
+        position: absolute;
+        bottom: 170px;
+        right: 25px;
+        background-color: white;
+        color: #ff0000;
+        border: 1px solid #ff0000;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+    #startButton {
+        position: absolute;
+        bottom: 170px;
+        right: 120px;
+        background-color: white;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+    #pauseButton {
+        position: absolute;
+        bottom: 220px;
+        right: 140px;
+        background-color: white;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+    #clearCoordinatesBtn :hover {
+        background-color: #ffe6e61d;
+    }
+    #Naviga{
+        position: absolute;
+        bottom: 220px;
+        right: 25px;
+        background-color: white;
+        color: #ff0000;
+        border: 1px solid #ff0000;
+        border-radius: 5px;
+        padding: 6px;
+        cursor: pointer;
+    }
+    .toggle-layer-btn:hover {
+        background-color: #e6f7ff;
+    }
+</style>
+
+<div id="container"></div>
+
+<div class="wrap_account_set">
+    <div class="form-group">
+        <label>小车编号:</label>
+        <input type="text" name="carID" id="carID" placeholder="请输入小车编号~~">
+    </div>
+    <div class="form-group form-inline">
+        <div>
+            <label>经度:</label>
+            <input type="text" name="longitude" id="longitude" autocomplete="off" placeholder="请输入经度~~">
+        </div>
+        <div>
+            <label>纬度:</label>
+            <input type="text" name="latitude" id="latitude" autocomplete="off" placeholder="请输入纬度~~">
+        </div>
+    </div>
+    <div class="form-group">
+        <button id="planRouteBtn" class="btn btn-w-m btn-outline btn-primary save">规划路径</button>
+    </div>
+</div>
+
+<!-- 切换卫星图层按钮 -->
+<button class="toggle-layer-btn" id="toggleLayerBtn">隐藏卫星图层</button>
+<button id="Naviga">前往坐标点</button>
+<button id="clearCoordinatesBtn">清空坐标</button>
+<button id="startButton">开启</button>
+<button id="pauseButton">暂停</button>
+{% end %}
+
+{% block js %}
+<div id="container"></div>
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: "82da1cc5467a95e168c358757d4c6ef5",
+    };
+</script>
+<script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=6c889de4ee1c73ea291466419487e294&plugin=AMap.Walking"></script>
+<script src="{{static_url('JS/give_point/api.js')}}"></script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+       var carID = 50215;
+        var startButton = document.getElementById("startButton");
+
+        startButton.addEventListener('click', function () {
+            // 判断当前按钮状态，根据状态决定发送的数据和按钮的下一个状态
+            var isStart = startButton.innerText === "开启";
+            var startValue = isStart ? 1 : 0;
+            var data = JSON.stringify({ carID: carID, start: startValue });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', "/map/pause", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    console.log("xhr response:", xhr.responseText);
+                    if (xhr.status == 200) {
+                        try {
+                            var res = JSON.parse(xhr.responseText);
+                            var callback = null;
+                            if (res.code == 200) {
+                                callback = function () {
+                                    console.log(res);
+                                    // 成功后切换按钮的状态和文本
+                                    startButton.innerText = isStart ? "关闭" : "开启";
+                                }
+                            }
+                            common_ops.alert(res.msg, callback);
+                        } catch (e) {
+                            console.error("Error parsing JSON:", e);
+                            common_ops.alert("服务器响应格式错误");
+                        }
+                    } else {
+                        common_ops.alert("请求失败，状态码：" + xhr.status);
+                    }
+                }
+            };
+            xhr.send(data);
+        });
+
+        var carID = 12345;
+        var startButton = document.getElementById("pauseButton");
+
+        pauseButton.addEventListener('click', function () {
+            // 判断当前按钮状态，根据状态决定发送的数据和按钮的下一个状态
+            var isStart = pauseButton.innerText === "暂停";
+            var startValue = isStart ? 1 : 0;
+            var data = JSON.stringify({ carID: carID, start: startValue });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', "/map/pause", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    console.log("xhr response:", xhr.responseText);
+                    if (xhr.status == 200) {
+                        try {
+                            var res = JSON.parse(xhr.responseText);
+                            var callback = null;
+                            if (res.code == 200) {
+                                callback = function () {
+                                    console.log(res);
+                                    // 成功后切换按钮的状态和文本
+                                    pauseButton.innerText = isStart ? "启动" : "暂停";
+                                }
+                            }
+                            common_ops.alert(res.msg, callback);
+                        } catch (e) {
+                            console.error("Error parsing JSON:", e);
+                            common_ops.alert("服务器响应格式错误");
+                        }
+                    } else {
+                        common_ops.alert("请求失败，状态码：" + xhr.status);
+                    }
+                }
+            };
+            xhr.send(data);
+        });
+
+        var satelliteLayer = new AMap.TileLayer.Satellite();
+        var baseLayer = new AMap.TileLayer();
+        var map = new AMap.Map("container", {
+            zoom: 18,
+            center: [112.946222, 28.174948],
+            layers: [satelliteLayer],
+        });
+
+        var markers = []; // 用于存储多个标记
+        var routeLine = null; // 用于存储路径
+        var i = 0;
+        // 为地图注册 click 事件，获取鼠标点击的经纬度坐标
+        map.on('click', function (e) {
+            var lng = e.lnglat.getLng();
+            var lat = e.lnglat.getLat();
+            document.getElementById("longitude").value = lng;
+            document.getElementById("latitude").value = lat;
+            // 创建标记
+            var marker = new AMap.Marker({
+                position: [lng, lat],
+                map: map,
+                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b' + (i + 1) + '.png',
+                extData: {
+                    id: i + 1
+                },
+                offset: new AMap.Pixel(-9, -30),
+            });
+            i++;
+            markers.push(marker); // 将标记添加到数组中
+            var overlayGroups = new AMap.OverlayGroup(markers);
+        });
+
+        // 清空坐标按钮事件
+        var clearBtn = document.getElementById("clearCoordinatesBtn");
+        clearBtn.addEventListener('click', function () {
+            // 移除所有标记
+            for (var j = 0; j < markers.length; j++) {
+                markers[j].setMap(null);
+            }
+            markers = []; // 清空标记数组
+            i = 0;
+
+            if (routeLine) {
+                map.remove(routeLine);
+                routeLine = null;
+            }
+
+            // 清空输入框中的经纬度
+            document.getElementById("longitude").value = '';
+            document.getElementById("latitude").value = '';
+
+
+        });
+
+        var walking = new AMap.Walking();
+        var planRouteBtn = document.getElementById("planRouteBtn");
+        planRouteBtn.addEventListener('click', function () {
+            var routePromises = [];
+            console.log(i);
+            for (var j = 0; j < markers.length - 1; j++) {
+                var start = markers[j].getPosition();
+                var end = markers[j + 1].getPosition();
+                console.log(start, end, j);
+                (function (start, end) {
+                    routePromises.push(new Promise((resolve, reject) => {
+                        walking.search(start, end, function (status, result) {
+                            if (status === 'complete') {
+                                resolve(result.routes[0]);
+                            } else {
+                                reject(result);
+                            }
+                        });
+                    }));
+                })(start, end);
+            }
+            var allPath = [];
+            Promise.all(routePromises).then(routes => {
+                routes.forEach(route => {
+                    var path = parseRouteToPath(route);
+                    console.log(path);
+                    allPath = allPath.concat(path);
+                });
+                drawRoute(allPath);
+                var carID_target = document.querySelector(".wrap_account_set input[name=carID]");
+                var carID = carID_target.value;
+                var data = new FormData();
+                console.log("This fucking", allPath);
+                data.append('allPath', JSON.stringify(allPath));
+                data.append('carID', carID);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', common_ops.buildUrl("/give_point/api"), true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        console.log("xhr response:", xhr.responseText);
+                        if (xhr.status == 200) {
+                            try {
+                                var res = JSON.parse(xhr.responseText);
+                                var callback = null;
+                                if (res.code == 200) {
+                                    callback = function () {
+                                        console.log(res);
+                                    }
+                                }
+                                common_ops.alert(res.msg, callback);
+                            } catch (e) {
+                                console.error("Error parsing JSON:", e);
+                                common_ops.alert("服务器响应格式错误");
+                            }
+                        }
+                        else {
+                            common_ops.alert("请求失败，状态码：" + xhr.status);
+                        }
+                    }
+                };
+                xhr.send(data);
+            }).catch(error => {
+                console.error('路径规划失败:', error);
+            });
+        });
+
+        function drawRoute(path) {
+            if (routeLine) {
+                map.remove(routeLine); // 移除之前的路径
+            }
+            routeLine = new AMap.Polyline({
+                path: path,
+                isOutline: true,
+                outlineColor: '#ffeeee',
+                borderWeight: 2,
+                strokeWeight: 5,
+                strokeColor: '#0091ff',
+                strokeOpacity: 0.9,
+                lineJoin: 'round'
+            });
+
+            map.add(routeLine);
+
+            // 调整视野达到最佳显示区域
+            // map.setFitView(routeLine);
+        }
+
+
+        function parseRouteToPath(route) {
+            var path = [];
+            for (var i = 0; i < route.steps.length; i++) {
+                var step = route.steps[i];
+                for (var j = 0; j < step.path.length; j++) {
+                    path.push(step.path[j]);
+                }
+            }
+            return path;
+        }
+        var Naviga = document.getElementById("Naviga");
+        Naviga.addEventListener('click', function () {
+            var carID_target = document.querySelector(".wrap_account_set input[name=carID]");
+            var carID = carID_target.value;
+
+            var longitude_target = document.querySelector(".wrap_account_set input[name=longitude]");
+            var longitude = longitude_target.value;
+
+            var latitude_target = document.querySelector(".wrap_account_set input[name=latitude]");
+            var latitude = latitude_target.value;
+
+            // 参数校验部分
+            if (carID.length < 1) {
+                common_ops.tip("请输入小车编号", carID_target);
+                return false;
+            }
+
+            if (longitude.length < 1) {
+                common_ops.tip("请输入符合规范的经度", longitude_target);
+                return false;
+            }
+
+            if (latitude.length < 1) {
+                common_ops.tip("请输入符合规范的纬度", latitude_target);
+                return false;
+            }
+            path = [[longitude, latitude]];
+            console.log(path);
+            var datapoint = new FormData();
+            datapoint.append('allPath', JSON.stringify(path));
+            datapoint.append('carID', carID);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', common_ops.buildUrl("/give_point/api"), true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    console.log("xhr response:", xhr.responseText);
+                    if (xhr.status == 200) {
+                        try {
+                            var res = JSON.parse(xhr.responseText);
+                            var callback = null;
+                            if (res.code == 200) {
+                                callback = function () {
+                                    console.log(res);
+                                }
+                            }
+                            common_ops.alert(res.msg, callback);
+                        } catch (e) {
+                            console.error("Error parsing JSON:", e);
+                            common_ops.alert("服务器响应格式错误");
+                        }
+                    }
+                    else {
+                        common_ops.alert("请求失败，状态码：" + xhr.status);
+                    }
+                }
+            };
+            console.log(datapoint);
+            xhr.send(datapoint);
+        });
+
+        // 切换图层按钮事件
+        var toggleLayerBtn = document.getElementById("toggleLayerBtn");
+        var satelliteLayerVisible = true;
+
+        toggleLayerBtn.addEventListener('click', function () {
+            if (satelliteLayerVisible) {
+                map.remove(satelliteLayer);
+                map.add(baseLayer);
+                toggleLayerBtn.textContent = "显示卫星图层";
+            } else {
+                map.remove(baseLayer);
+                map.add(satelliteLayer);
+                toggleLayerBtn.textContent = "隐藏卫星图层";
+            }
+            satelliteLayerVisible = !satelliteLayerVisible;
+        });
+    });
+</script>
+{% end %}
