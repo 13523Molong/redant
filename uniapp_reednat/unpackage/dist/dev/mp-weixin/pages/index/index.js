@@ -25,7 +25,7 @@ const _sfc_main = {
       }
       common_vendor.index.showLoading({ title: "登录中..." });
       common_vendor.index.request({
-        url: `${config.config.apiBaseUrl}/index/`,
+        url: `${config.config.apiBaseUrl}/login/`,
         header: { "Content-Type": "application/json" },
         method: "POST",
         data: {

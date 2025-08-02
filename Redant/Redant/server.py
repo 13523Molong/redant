@@ -10,7 +10,7 @@ import flask.sessions
 #配置跨域，是不同浏览器兼容
 from flask_cors import CORS
 
-from config import *
+from Redant.config import *
 
 from sqlalchemy import *
 
@@ -21,7 +21,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import SQLAlchemyError, DisconnectionError
 
 # 导入数据库配置信息
-from database import *
+from Redant.database import *
 
 from flask_sqlalchemy import *
 

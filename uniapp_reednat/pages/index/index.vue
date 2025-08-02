@@ -106,7 +106,7 @@ function login() {
 
   // 发起登录请求
   uni.request({
-    url: `${config.apiBaseUrl}/index/`,
+    url: `${config.apiBaseUrl}/login/`,
 	header: { 'Content-Type': 'application/json' },
     method: 'POST',
     data: {

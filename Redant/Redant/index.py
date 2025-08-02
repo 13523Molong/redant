@@ -1,4 +1,4 @@
-from database import *
+from Redant.database import *
 
 import datetime
 
